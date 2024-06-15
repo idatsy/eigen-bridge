@@ -11,17 +11,34 @@ import "./ECDSAUtils.sol";
 
 
 contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtils {
+    // Stores the transfer index for each user for unique transfer tracking
     mapping(address => uint256) public nextUserTransferIndexes;
-//    mapping(address => bool) public whitelistedSigners;
-    mapping(address => mapping(address => uint256)) public userDeposits;
+    // Tracks bridge requests that this operator has responded to once to avoid duplications
+    mapping(address => mapping(uint256=> bool)) public operatorResponses;
+    // Tracks the total operator weight attested to a bridge request
+    mapping(uint256 => uint256) public bridgeRequestWeights;
 
+    // Global unique bridge request ID
     uint256 public currentBridgeRequestId;
+    // Stores history of bridge requests
     mapping(uint256 => Structs.BridgeRequestData) public bridgeRequests;
 
+    // Total fee charged to user for bridging
     uint256 public bridgeFee;
+    // Total reward for AVS attestation
     uint256 public AVSReward;
+    // Estimated gas cost for calling release funds, used to calculate rebate and incentivise users to call
     uint256 public crankGasCost;
-    address public canonicalSigner;
+
+    modifier onlyOperator() {
+        require(
+            ECDSAStakeRegistry(stakeRegistry).operatorRegistered(msg.sender)
+            ==
+            true,
+            "Operator must be the caller"
+        );
+        _;
+    }
 
     /**
      * @dev Constructor for ECDSAServiceManagerBase, initializing immutable contract addresses and disabling initializers.
@@ -35,7 +52,6 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         address _stakeRegistry,
         address _rewardsCoordinator,
         address _delegationManager,
-        address _canonicalSigner,
         uint256 _crankGasCost,
         uint256 _AVSReward,
         uint256 _bridgeFee
@@ -52,7 +68,6 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         AVSReward = _AVSReward;
         bridgeFee = _bridgeFee;
 
-        canonicalSigner = _canonicalSigner;
         currentBridgeRequestId = 0;
     }
 
@@ -77,7 +92,6 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
             amountIn
         );
         require(success, "Transfer failed");
-        userDeposits[msg.sender][tokenAddress] += amountIn;
     }
 
     function bridge(
@@ -117,9 +131,19 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         nextUserTransferIndexes[msg.sender]++;
     }
 
-    function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant {
-        emit AVSAttestation(attestation, _bridgeRequestId);
+    function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant onlyOperator {
+        // Check minimum weight requirement
+        require(operatorHasMinimumWeight(msg.sender), "Operator does not have minimum weight");
+        // Check that operator doesn't respond to the same task twice
+        require(!operatorResponses[msg.sender][_bridgeRequestId], "Operator has already responded to the task");
+        // Check that the operator is signing the correct bridge request parameters
+        require(msg.sender == getSigner(bridgeRequests[_bridgeRequestId], attestation), "Invalid attestation signature");
 
+        // Increment the total weights attested for this bridge request.
+        // Helpful for determining when enough attestations have been collected to release funds.
+        bridgeRequestWeights[_bridgeRequestId] += getOperatorWeight(msg.sender);
+
+        // Calculate payment for AVS attestation, equals the reward or the contract balance
         uint256 payout = AVSReward;
         if (address(this).balance < payout) {
             payout = address(this).balance;
@@ -128,6 +152,21 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         // TODO: This is a placeholder for the actual AVS reward distribution pending Eigen M2 implementation
         (bool sent, ) = msg.sender.call{value: payout}("");
         require(sent, "Failed to send AVS reward");
+
+        emit AVSAttestation(attestation, _bridgeRequestId);
     }
 
+    function challengeAttestation(uint256 _bridgeRequestId) public nonReentrant {
+        // TODO: Implement slashing logic pending clarity on Eigen implementation
+    }
+
+    function operatorHasMinimumWeight(address operator) public view returns (bool) {
+        return ECDSAStakeRegistry(stakeRegistry).getOperatorWeight(operator) >= ECDSAStakeRegistry(stakeRegistry).minimumWeight();
+    }
+
+    function getOperatorWeight(address operator) public view returns (uint256) {
+        return ECDSAStakeRegistry(stakeRegistry).getOperatorWeight(operator);
+    }
+
+    receive() external payable {}
 }
