@@ -12,7 +12,8 @@ import "./ECDSAUtils.sol";
 
 contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtils {
     mapping(address => uint256) public nextUserTransferIndexes;
-    mapping(address => bool) public whitelistedSigners;
+//    mapping(address => bool) public whitelistedSigners;
+    mapping(address => mapping(address => uint256)) public userDeposits;
 
     uint256 public currentBridgeRequestId;
     mapping(uint256 => Structs.BridgeRequestData) public bridgeRequests;
@@ -28,10 +29,6 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
      * @param _stakeRegistry The address of the stake registry contract, managing registration and stake recording.
      * @param _rewardsCoordinator The address of the rewards coordinator contract, handling rewards distributions.
      * @param _delegationManager The address of the delegation manager contract, managing staker delegations to operators.
-     * @param _canonicalSigner The address of the canonical signer.
-     * @param _crankGasCost The initial gas cost for crank operations.
-     * @param _AVSReward The initial reward for AVS operations.
-     * @param _bridgeFee The initial fee for bridge operations.
      */
     constructor(
         address _avsDirectory,
@@ -57,6 +54,80 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
 
         canonicalSigner = _canonicalSigner;
         currentBridgeRequestId = 0;
+    }
+
+    /* Access control functions and fee setters */
+
+    function setBridgeFee(uint256 _bridgeFee) external onlyOwner {
+        bridgeFee = _bridgeFee;
+    }
+
+    function setAVSReward(uint256 _AVSReward) external onlyOwner {
+        AVSReward = _AVSReward;
+    }
+
+    function setCrankGasCost(uint256 _crankGasCost) external onlyOwner {
+        crankGasCost = _crankGasCost;
+    }
+
+    function bridgeERC20(address tokenAddress, uint256 amountIn) internal {
+        bool success = IERC20(tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            amountIn
+        );
+        require(success, "Transfer failed");
+        userDeposits[msg.sender][tokenAddress] += amountIn;
+    }
+
+    function bridge(
+        address tokenAddress,
+        uint256 amountIn,
+        uint256 amountOut,
+        address destinationVault,
+        address destinationAddress
+    ) public payable nonReentrant {
+        require(msg.value == bridgeFee, "Incorrect bridge fee");
+
+        bridgeERC20(tokenAddress, amountIn);
+        uint256 transferIndex = nextUserTransferIndexes[msg.sender];
+
+        emit BridgeRequest(
+            msg.sender,
+            tokenAddress,
+            currentBridgeRequestId,
+            amountIn,
+            amountOut,
+            destinationVault,
+            destinationAddress,
+            transferIndex
+        );
+
+        bridgeRequests[currentBridgeRequestId] = Structs.BridgeRequestData(
+            msg.sender,
+            tokenAddress,
+            amountIn,
+            amountOut,
+            destinationVault,
+            destinationAddress,
+            transferIndex
+        );
+
+        currentBridgeRequestId++;
+        nextUserTransferIndexes[msg.sender]++;
+    }
+
+    function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant {
+        emit AVSAttestation(attestation, _bridgeRequestId);
+
+        uint256 payout = AVSReward;
+        if (address(this).balance < payout) {
+            payout = address(this).balance;
+        }
+
+        // TODO: This is a placeholder for the actual AVS reward distribution pending Eigen M2 implementation
+        (bool sent, ) = msg.sender.call{value: payout}("");
+        require(sent, "Failed to send AVS reward");
     }
 
 }
