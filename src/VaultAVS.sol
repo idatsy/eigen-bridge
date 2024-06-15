@@ -11,6 +11,8 @@ import "./ECDSAUtils.sol";
 
 
 contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtils {
+    using Structs for Structs.BridgeRequestData;
+
     // Stores the transfer index for each user for unique transfer tracking
     mapping(address => uint256) public nextUserTransferIndexes;
     // Tracks bridge requests that this operator has responded to once to avoid duplications
@@ -62,7 +64,7 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
             _rewardsCoordinator,
             _delegationManager
         )
-        ECDSAUtils("Zarathustra", "1")
+        ECDSAUtils("Zarathustra", "3")
     {
         crankGasCost = _crankGasCost;
         AVSReward = _AVSReward;
@@ -93,6 +95,8 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         );
         require(success, "Transfer failed");
     }
+
+    /* Bridge functions */
 
     function bridge(
         address tokenAddress,
@@ -131,11 +135,28 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         nextUserTransferIndexes[msg.sender]++;
     }
 
+    /* AVS functions */
+
+    function rewardAttestation(address operator) internal {
+        // Calculate payment for AVS attestation, equals the reward or the contract balance
+        uint256 payout = AVSReward;
+
+        if (address(this).balance < payout) {
+            payout = address(this).balance;
+        }
+
+        // TODO: This is a placeholder for the actual AVS reward distribution pending Eigen M2 implementation
+        (bool success, ) = operator.call{value: payout}("");
+        success;
+    }
+
     function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant onlyOperator {
         // Check minimum weight requirement
         require(operatorHasMinimumWeight(msg.sender), "Operator does not have minimum weight");
+
         // Check that operator doesn't respond to the same task twice
         require(!operatorResponses[msg.sender][_bridgeRequestId], "Operator has already responded to the task");
+
         // Check that the operator is signing the correct bridge request parameters
         require(msg.sender == getSigner(bridgeRequests[_bridgeRequestId], attestation), "Invalid attestation signature");
 
@@ -143,22 +164,39 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         // Helpful for determining when enough attestations have been collected to release funds.
         bridgeRequestWeights[_bridgeRequestId] += getOperatorWeight(msg.sender);
 
-        // Calculate payment for AVS attestation, equals the reward or the contract balance
-        uint256 payout = AVSReward;
-        if (address(this).balance < payout) {
-            payout = address(this).balance;
-        }
-
-        // TODO: This is a placeholder for the actual AVS reward distribution pending Eigen M2 implementation
-        (bool sent, ) = msg.sender.call{value: payout}("");
-        require(sent, "Failed to send AVS reward");
+        rewardAttestation(msg.sender);
 
         emit AVSAttestation(attestation, _bridgeRequestId);
     }
 
-    function challengeAttestation(uint256 _bridgeRequestId) public nonReentrant {
-        // TODO: Implement slashing logic pending clarity on Eigen implementation
+    function slashOperator(address operator, uint256 penalty) internal {
+        // TODO: Implement slashing logic pending clarity on Eigen implementations
     }
+
+    function challengeAttestation(
+        bytes memory fraudulentSignature,
+        Structs.BridgeRequestData memory fraudulentBridgeRequest
+    ) public nonReentrant {
+        // Get the signer for this potentially fraudulent bridge request
+        address fraudulentSigner = getSigner(fraudulentBridgeRequest, fraudulentSignature);
+
+        // Check that a bridge request exists for this transfer index, and has been signed by the alleged fraudster
+        require(
+            operatorResponses[fraudulentSigner][fraudulentBridgeRequest.transferIndex],
+            "Operator has not attested to this bride request"
+        );
+
+        // Check that this signed potentially fraudulent bridge request does not match the actual bridge request
+        // meaning it would have been manipulated by the operator
+        Structs.BridgeRequestData memory actualBridgeRequest = bridgeRequests[fraudulentBridgeRequest.transferIndex];
+
+        if (fraudulentBridgeRequest.hash() != actualBridgeRequest.hash()) {
+            // Slash the operator for attempting to submit a fraudulent attestation
+            slashOperator(fraudulentSigner, getOperatorWeight(fraudulentSigner));
+        }
+    }
+
+    /* Helper functions */
 
     function operatorHasMinimumWeight(address operator) public view returns (bool) {
         return ECDSAStakeRegistry(stakeRegistry).getOperatorWeight(operator) >= ECDSAStakeRegistry(stakeRegistry).minimumWeight();

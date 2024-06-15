@@ -11,4 +11,16 @@ library Structs {
         address destinationAddress;
         uint256 transferIndex;
     }
+
+    function hash(BridgeRequestData memory data) internal pure returns (bytes32) {
+        return keccak256(abi.encode(
+            data.user,
+            data.tokenAddress,
+            data.amountIn,
+            data.amountOut,
+            data.destinationVault,
+            data.destinationAddress,
+            data.transferIndex
+        ));
+    }
 }
