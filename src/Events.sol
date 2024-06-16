@@ -17,4 +17,10 @@ contract Events {
         bytes indexed attestation,
         uint256 indexed bridgeRequestId
     );
+
+    event FundsReleased(
+        address indexed destinationVault,
+        address indexed destinationAddress,
+        uint256 indexed amountOut
+    );
 }

@@ -124,6 +124,46 @@ contract EigenLayerBridge is ECDSAServiceManagerBase, Vault {
         }
     }
 
+    function payoutCrankGasCost() internal {
+        uint256 payout = crankGasCost * tx.gasprice;
+        if (address(this).balance < payout) {
+            payout = address(this).balance;
+        }
+
+        if (payout > 0) {
+            (bool success, ) = msg.sender.call{value: payout}("");
+            require(success, "Failed to send crank fee");
+        }
+    }
+
+    /// @notice Release funds to the destination address
+    function _releaseFunds(bytes memory data) public override nonReentrant {
+        releaseFunds(abi.decode(data, (bytes[])), abi.decode(data, (Structs.BridgeRequestData)));
+    }
+
+    /// @dev Convenience function for releasing funds to the destination address with typed data for ABI construction
+    function releaseFunds(bytes[] memory signatures, Structs.BridgeRequestData memory data) public nonReentrant {
+        // Verify each signature and sum the operator weights
+        uint256 totalWeight = 0;
+        for (uint256 i = 0; i < signatures.length; i++) {
+            address signer = getSigner(data, signatures[i]);
+            require(operatorResponses[signer][data.transferIndex], "Invalid signature");
+            totalWeight += getOperatorWeight(signer);
+        }
+
+        // Check if the total weight is sufficient to cover the economic value of the swap
+        require(totalWeight >= data.amountOut, "Insufficient total weight to cover swap");
+
+        // Transfer the tokens to the destination address
+        // NOTE: This should use an oracle price or a passed down price from original BridgeRequest, for the sake of
+        // illustrating how EigenLayer works we are using the amountOut as the value of the token here.
+        IERC20(data.tokenAddress).transfer(data.destinationAddress, data.amountOut);
+
+        payoutCrankGasCost();
+
+        emit FundsReleased(data.tokenAddress, data.destinationAddress, data.amountOut);
+    }
+
     /* Helper functions */
 
     function operatorHasMinimumWeight(address operator) public view returns (bool) {

@@ -3,13 +3,14 @@ pragma solidity ^0.8.13;
 
 import "openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "openzeppelin/contracts/token/ERC20/IERC20.sol";
+// this looks weird, but has to be imported from the same location as any sibling contracts
 import {OwnableUpgradeable} from "@openzeppelin-upgrades/contracts/access/OwnableUpgradeable.sol";
 
 import {ECDSAUtils} from "./ECDSAUtils.sol";
 import {Structs} from "./Structs.sol";
 import {Events} from "./Events.sol";
 
-contract Vault is ECDSAUtils, Events, ReentrancyGuard, OwnableUpgradeable {
+abstract contract Vault is ECDSAUtils, Events, ReentrancyGuard, OwnableUpgradeable {
     /// @notice Stores the transfer index for each user for unique transfer tracking
     /// @dev conveniently solidity mappings start at 0 when uninitialized so we don't have to worry about new users
     mapping(address => uint256) public nextUserTransferIndexes;
@@ -94,4 +95,8 @@ contract Vault is ECDSAUtils, Events, ReentrancyGuard, OwnableUpgradeable {
         currentBridgeRequestId++;
         nextUserTransferIndexes[msg.sender]++;
     }
+
+    /// @notice Fund releasing logic is implementation specific and should be implemented in the inheriting contract
+    /// in order to ensure that the funds are released correctly
+    function _releaseFunds(bytes memory data) public virtual;
 }
