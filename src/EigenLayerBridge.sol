@@ -3,34 +3,55 @@ pragma solidity ^0.8.13;
 
 import "eigenlayer-middleware/src/unaudited/ECDSAServiceManagerBase.sol";
 import "openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./Events.sol";
 import "./Structs.sol";
 import "./ECDSAUtils.sol";
+import {Vault} from "./Vault.sol";
 
 
-contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtils {
+contract EigenLayerBridge is ECDSAServiceManagerBase, Vault {
     using Structs for Structs.BridgeRequestData;
 
-    // Stores the transfer index for each user for unique transfer tracking
-    mapping(address => uint256) public nextUserTransferIndexes;
-    // Tracks bridge requests that this operator has responded to once to avoid duplications
+    /// @notice Tracks bridge requests that this operator has responded to once to avoid duplications
+    /// @dev Double attestations would technically be valid and allow operators to recursively call until funds are released
     mapping(address => mapping(uint256=> bool)) public operatorResponses;
-    // Tracks the total operator weight attested to a bridge request
+
+    /// @notice Tracks the total operator weight attested to a bridge request
+    /// @dev Helpful for determining when enough attestations have been collected to release funds.
     mapping(uint256 => uint256) public bridgeRequestWeights;
 
-    // Global unique bridge request ID
-    uint256 public currentBridgeRequestId;
-    // Stores history of bridge requests
-    mapping(uint256 => Structs.BridgeRequestData) public bridgeRequests;
+    /**
+     * @dev Constructor for ECDSAServiceManagerBase, initializing immutable contract addresses and disabling initializers.
+     * @param _avsDirectory The address of the AVS directory contract, managing AVS-related data for registered operators.
+     * @param _stakeRegistry The address of the stake registry contract, managing registration and stake recording.
+     * @param _rewardsCoordinator The address of the rewards coordinator contract, handling rewards distributions.
+     * @param _delegationManager The address of the delegation manager contract, managing staker delegations to operators.
+     * @param _crankGasCost The estimated gas cost for calling release funds, used to calculate rebate and incentivise users to call.
+     * @param _AVSReward The total reward for AVS attestation.
+     * @param _bridgeFee The total fee charged to user for bridging.
+     * @param _name The name of the contract. Used for EIP-712 domain construction.
+     * @param _version The version of the contract. Used for EIP-712 domain construction.
+     */
+    constructor(
+        address _avsDirectory, address _stakeRegistry, address _rewardsCoordinator, address _delegationManager,
+        uint256 _crankGasCost, uint256 _AVSReward, uint256 _bridgeFee,
+        string memory _name, string memory _version
+    )
+        ECDSAServiceManagerBase(
+            _avsDirectory,
+            _stakeRegistry,
+            _rewardsCoordinator,
+            _delegationManager
+        )
+        Vault(_crankGasCost, _AVSReward, _bridgeFee, _name, _version)
+    {
+        crankGasCost = _crankGasCost;
+        AVSReward = _AVSReward;
+        bridgeFee = _bridgeFee;
 
-    // Total fee charged to user for bridging
-    uint256 public bridgeFee;
-    // Total reward for AVS attestation
-    uint256 public AVSReward;
-    // Estimated gas cost for calling release funds, used to calculate rebate and incentivise users to call
-    uint256 public crankGasCost;
+        currentBridgeRequestId = 0;
+    }
 
     modifier onlyOperator() {
         require(
@@ -40,99 +61,6 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
             "Operator must be the caller"
         );
         _;
-    }
-
-    /**
-     * @dev Constructor for ECDSAServiceManagerBase, initializing immutable contract addresses and disabling initializers.
-     * @param _avsDirectory The address of the AVS directory contract, managing AVS-related data for registered operators.
-     * @param _stakeRegistry The address of the stake registry contract, managing registration and stake recording.
-     * @param _rewardsCoordinator The address of the rewards coordinator contract, handling rewards distributions.
-     * @param _delegationManager The address of the delegation manager contract, managing staker delegations to operators.
-     */
-    constructor(
-        address _avsDirectory,
-        address _stakeRegistry,
-        address _rewardsCoordinator,
-        address _delegationManager,
-        uint256 _crankGasCost,
-        uint256 _AVSReward,
-        uint256 _bridgeFee
-    )
-        ECDSAServiceManagerBase(
-            _avsDirectory,
-            _stakeRegistry,
-            _rewardsCoordinator,
-            _delegationManager
-        )
-        ECDSAUtils("Zarathustra", "3")
-    {
-        crankGasCost = _crankGasCost;
-        AVSReward = _AVSReward;
-        bridgeFee = _bridgeFee;
-
-        currentBridgeRequestId = 0;
-    }
-
-    /* Access control functions and fee setters */
-
-    function setBridgeFee(uint256 _bridgeFee) external onlyOwner {
-        bridgeFee = _bridgeFee;
-    }
-
-    function setAVSReward(uint256 _AVSReward) external onlyOwner {
-        AVSReward = _AVSReward;
-    }
-
-    function setCrankGasCost(uint256 _crankGasCost) external onlyOwner {
-        crankGasCost = _crankGasCost;
-    }
-
-    function bridgeERC20(address tokenAddress, uint256 amountIn) internal {
-        bool success = IERC20(tokenAddress).transferFrom(
-            msg.sender,
-            address(this),
-            amountIn
-        );
-        require(success, "Transfer failed");
-    }
-
-    /* Bridge functions */
-
-    function bridge(
-        address tokenAddress,
-        uint256 amountIn,
-        uint256 amountOut,
-        address destinationVault,
-        address destinationAddress
-    ) public payable nonReentrant {
-        require(msg.value == bridgeFee, "Incorrect bridge fee");
-
-        bridgeERC20(tokenAddress, amountIn);
-        uint256 transferIndex = nextUserTransferIndexes[msg.sender];
-
-        emit BridgeRequest(
-            msg.sender,
-            tokenAddress,
-            currentBridgeRequestId,
-            amountIn,
-            amountOut,
-            destinationVault,
-            destinationAddress,
-            transferIndex
-        );
-
-        bridgeRequests[currentBridgeRequestId] = Structs.BridgeRequestData(
-            msg.sender,
-            tokenAddress,
-            amountIn,
-            amountOut,
-            destinationVault,
-            destinationAddress,
-            transferIndex
-        );
-
-        currentBridgeRequestId++;
-        nextUserTransferIndexes[msg.sender]++;
     }
 
     /* AVS functions */
@@ -169,7 +97,7 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
         emit AVSAttestation(attestation, _bridgeRequestId);
     }
 
-    function slashOperator(address operator, uint256 penalty) internal {
+    function slashMaliciousAttestor(address operator, uint256 penalty) internal {
         // TODO: Implement slashing logic pending clarity on Eigen implementations
     }
 
@@ -192,7 +120,7 @@ contract VaultAVS is ECDSAServiceManagerBase, Events, ReentrancyGuard, ECDSAUtil
 
         if (fraudulentBridgeRequest.hash() != actualBridgeRequest.hash()) {
             // Slash the operator for attempting to submit a fraudulent attestation
-            slashOperator(fraudulentSigner, getOperatorWeight(fraudulentSigner));
+            slashMaliciousAttestor(fraudulentSigner, getOperatorWeight(fraudulentSigner));
         }
     }
 

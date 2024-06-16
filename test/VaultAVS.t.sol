@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {VaultAVS} from "../src/VaultAVS.sol";
+import {EigenLayerBridge} from "../src/EigenLayerBridge.sol";
 
 contract VaultAVSTest is Test {
-    VaultAVS public vault;
+    EigenLayerBridge public vault;
 }
