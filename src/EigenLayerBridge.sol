@@ -84,11 +84,12 @@ contract BridgeServiceManager is ECDSAServiceManagerBase, Vault {
 
         // Increment the total weights attested for this bridge request.
         // Helpful for determining when enough attestations have been collected to release funds.
-        bridgeRequestWeights[_bridgeRequestId] += getOperatorWeight(msg.sender);
+        uint256 operatorWeight = getOperatorWeight(msg.sender);
+        bridgeRequestWeights[_bridgeRequestId] += operatorWeight;
 
         rewardAttestation(msg.sender);
 
-        emit AVSAttestation(attestation, _bridgeRequestId);
+        emit AVSAttestation(attestation, _bridgeRequestId, operatorWeight);
     }
 
     function slashMaliciousAttestor(address operator, uint256 penalty) internal {
