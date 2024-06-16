@@ -26,12 +26,21 @@ abstract contract Vault is ECDSAUtils, Events, ReentrancyGuard, OwnableUpgradeab
     // Estimated gas cost for calling release funds, used to calculate rebate and incentivise users to call
     uint256 public crankGasCost;
 
+    address deployer;
+
     constructor(
         uint256 _crankGasCost, uint256 _AVSReward, uint256 _bridgeFee, string memory _name, string memory _version
     ) ECDSAUtils(_name, _version) {
         crankGasCost = _crankGasCost;
         AVSReward = _AVSReward;
         bridgeFee = _bridgeFee;
+
+        deployer = msg.sender;
+    }
+
+    function initialize() public initializer {
+        __Ownable_init();
+        transferOwnership(deployer);
     }
 
     /* Access control functions and fee setters */

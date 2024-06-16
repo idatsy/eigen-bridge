@@ -9,7 +9,7 @@ import "./ECDSAUtils.sol";
 import  "./Vault.sol";
 
 
-contract PermissionedVault is Vault {
+contract PermissionedBridge is Vault {
     using Structs for Structs.BridgeRequestData;
 
     /// @notice Tracks bridge requests that this operator has responded to once to avoid duplications
@@ -95,6 +95,10 @@ contract PermissionedVault is Vault {
 
     function getOperatorWeight(address operator) public view returns (uint256) {
         return operatorWeights[operator];
+    }
+
+    function setOperatorWeight(address operator, uint256 weight) public onlyOwner {
+        operatorWeights[operator] = weight;
     }
 
     receive() external payable {}
