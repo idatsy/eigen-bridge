@@ -45,13 +45,7 @@ contract BridgeServiceManager is ECDSAServiceManagerBase, Vault {
             _delegationManager
         )
         Vault(_crankGasCost, _AVSReward, _bridgeFee, _name, _version)
-    {
-        crankGasCost = _crankGasCost;
-        AVSReward = _AVSReward;
-        bridgeFee = _bridgeFee;
-
-        currentBridgeRequestId = 0;
-    }
+    {}
 
     modifier onlyOperator() {
         require(
