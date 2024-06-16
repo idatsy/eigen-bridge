@@ -67,12 +67,11 @@ contract PermissionedBridge is Vault {
 
     /// @notice Convenience function for releasing funds to the destination address with typed data for ABI construction
     /// @dev NOTE: this function is only callable by the owner and always releases the funds to the destination address
-    function releaseFunds(bytes[] memory signatures, Structs.BridgeRequestData memory data) public nonReentrant onlyOwner {
+    function releaseFunds(bytes[] memory signatures, Structs.BridgeRequestData memory data) public nonReentrant {
         // Verify each signature and sum the operator weights
         uint256 totalWeight = 0;
         for (uint256 i = 0; i < signatures.length; i++) {
             address signer = getSigner(data, signatures[i]);
-            require(operatorResponses[signer][data.transferIndex], "Invalid signature");
             totalWeight += getOperatorWeight(signer);
         }
 

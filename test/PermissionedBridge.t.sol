@@ -18,8 +18,8 @@ contract PermissionedBridgeTest is Test, EIP712("PermissionedBridge", "1") {
     uint256 bridgeFee = 0.005 ether;
     uint256 crankGasCost = 100_000;
 
-    address bob = address(0x1);
-    address alice = address(0x2);
+    address bob = address(0x123);
+    address alice = address(0x456);
     address operator;
     uint256 operatorPrivateKey;
 
@@ -113,6 +113,41 @@ contract PermissionedBridgeTest is Test, EIP712("PermissionedBridge", "1") {
     }
 
     function testBridgeCompletesReleaseFunds() public {
+        testBridgeRequestEmitEvents();
 
+        (
+            address user,
+            address tokenAddress,
+            uint256 amountIn,
+            uint256 amountOut,
+            address destinationVault,
+            address destinationAddress,
+            uint256 transferIndex
+        ) = localVault.bridgeRequests(0);
+
+        Structs.BridgeRequestData memory bridgeRequest = Structs.BridgeRequestData(
+            user,
+            tokenAddress,
+            amountIn,
+            amountOut,
+            destinationVault,
+            destinationAddress,
+            transferIndex
+        );
+
+        // NOTE: This is signed against the local vault in this example, but for cross-chain swaps this would need to
+        // be signed against the remoteVault as the chainId is part of the EIP712 signing domain!!
+        bytes memory attestation = signBridgeRequestData(remoteVault, bridgeRequest, operatorPrivateKey);
+        bytes[] memory bridgeRequestSignatures = new bytes[](1);
+        bridgeRequestSignatures[0] = attestation;
+
+        assertEq(IERC20(usdc).balanceOf(address(remoteVault)), 1000 * 10**6);
+        assertEq(IERC20(usdc).balanceOf(alice), 0);
+
+        vm.prank(alice);
+        remoteVault.releaseFunds(bridgeRequestSignatures, bridgeRequest);
+
+        assertEq(IERC20(usdc).balanceOf(address(remoteVault)), 0);
+        assertEq(IERC20(usdc).balanceOf(alice), 1000 * 10**6);
     }
 }
