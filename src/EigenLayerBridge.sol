@@ -7,10 +7,10 @@ import "openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Events.sol";
 import "./Structs.sol";
 import "./ECDSAUtils.sol";
-import {Vault} from "./Vault.sol";
+import  "./Vault.sol";
 
 
-contract EigenLayerBridge is ECDSAServiceManagerBase, Vault {
+contract BridgeServiceManager is ECDSAServiceManagerBase, Vault {
     using Structs for Structs.BridgeRequestData;
 
     /// @notice Tracks bridge requests that this operator has responded to once to avoid duplications
