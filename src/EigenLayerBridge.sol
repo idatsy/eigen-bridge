@@ -7,10 +7,10 @@ import "openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Events.sol";
 import "./Structs.sol";
 import "./ECDSAUtils.sol";
-import {Vault} from "./Vault.sol";
+import  "./Vault.sol";
 
 
-contract EigenLayerBridge is ECDSAServiceManagerBase, Vault {
+contract BridgeServiceManager is ECDSAServiceManagerBase, Vault {
     using Structs for Structs.BridgeRequestData;
 
     /// @notice Tracks bridge requests that this operator has responded to once to avoid duplications
@@ -45,13 +45,7 @@ contract EigenLayerBridge is ECDSAServiceManagerBase, Vault {
             _delegationManager
         )
         Vault(_crankGasCost, _AVSReward, _bridgeFee, _name, _version)
-    {
-        crankGasCost = _crankGasCost;
-        AVSReward = _AVSReward;
-        bridgeFee = _bridgeFee;
-
-        currentBridgeRequestId = 0;
-    }
+    {}
 
     modifier onlyOperator() {
         require(
