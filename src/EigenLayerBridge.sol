@@ -84,15 +84,75 @@ contract BridgeServiceManager is ECDSAServiceManagerBase, Vault {
 
         // Increment the total weights attested for this bridge request.
         // Helpful for determining when enough attestations have been collected to release funds.
-        bridgeRequestWeights[_bridgeRequestId] += getOperatorWeight(msg.sender);
+        uint256 operatorWeight = getOperatorWeight(msg.sender);
+        bridgeRequestWeights[_bridgeRequestId] += operatorWeight;
 
         rewardAttestation(msg.sender);
 
-        emit AVSAttestation(attestation, _bridgeRequestId);
+        emit AVSAttestation(attestation, _bridgeRequestId, operatorWeight);
     }
 
     function slashMaliciousAttestor(address operator, uint256 penalty) internal {
         // TODO: Implement slashing logic pending clarity on Eigen implementations
+        // @dev the below code is commented out for the upcoming M2 release
+        //      in which there will be no slashing. The slasher is also being redesigned
+        //      so its interface may very well change.
+        // ==========================================
+        // // get the list of all operators who were active when the task was initialized
+        // Operator[][] memory allOperatorInfo = getOperatorState(
+        //     IRegistryCoordinator(address(registryCoordinator)),
+        //     task.quorumNumbers,
+        //     task.taskCreatedBlock
+        // );
+        // // freeze the operators who signed adversarially
+        // for (uint i = 0; i < allOperatorInfo.length; i++) {
+        //     // first for loop iterate over quorums
+
+        //     for (uint j = 0; j < allOperatorInfo[i].length; j++) {
+        //         // second for loop iterate over operators active in the quorum when the task was initialized
+
+        //         // get the operator address
+        //         bytes32 operatorID = allOperatorInfo[i][j].operatorId;
+        //         address operatorAddress = BLSPubkeyRegistry(
+        //             address(blsPubkeyRegistry)
+        //         ).pubkeyCompendium().pubkeyHashToOperator(operatorID);
+
+        //         // check if the operator has already NOT been frozen
+        //         if (
+        //             IServiceManager(
+        //                 address(
+        //                     BLSRegistryCoordinatorWithIndices(
+        //                         address(registryCoordinator)
+        //                     ).serviceManager()
+        //                 )
+        //             ).slasher().isFrozen(operatorAddress) == false
+        //         ) {
+        //             // check whether the operator was a signer for the task
+        //             bool wasSigningOperator = true;
+        //             for (
+        //                 uint k = 0;
+        //                 k < addresssOfNonSigningOperators.length;
+        //                 k++
+        //             ) {
+        //                 if (
+        //                     operatorAddress == addresssOfNonSigningOperators[k]
+        //                 ) {
+        //                     // if the operator was a non-signer, then we set the flag to false
+        //                     wasSigningOperator == false;
+        //                     break;
+        //                 }
+        //             }
+
+        //             if (wasSigningOperator == true) {
+        //                 BLSRegistryCoordinatorWithIndices(
+        //                     address(registryCoordinator)
+        //                 ).serviceManager().freezeOperator(operatorAddress);
+        //             }
+        //         }
+        //     }
+        // }
+
+        // the task response has been challenged successfully
     }
 
     function challengeAttestation(

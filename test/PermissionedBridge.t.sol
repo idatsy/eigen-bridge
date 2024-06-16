@@ -107,7 +107,7 @@ contract PermissionedBridgeTest is Test, EIP712("PermissionedBridge", "1") {
 
         vm.prank(operator);
         vm.expectEmit(true, true, true, true);
-        emit Events.AVSAttestation(attestation, 0);
+        emit Events.AVSAttestation(attestation, 0, 1000 ether);
 
         localVault.publishAttestation(attestation, 0);
     }

@@ -15,7 +15,8 @@ contract Events {
 
     event AVSAttestation(
         bytes indexed attestation,
-        uint256 indexed bridgeRequestId
+        uint256 indexed bridgeRequestId,
+        uint256 indexed operatorWeight
     );
 
     event FundsReleased(
