@@ -90,7 +90,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item "><a href="index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">src</li><li class="chapter-item "><a href="src/ECDSAUtils.sol/contract.ECDSAUtils.html">ECDSAUtils</a></li><li class="chapter-item "><a href="src/EigenLayerBridge.sol/contract.BridgeServiceManager.html">BridgeServiceManager</a></li><li class="chapter-item "><a href="src/Events.sol/contract.Events.html">Events</a></li><li class="chapter-item "><a href="src/PermissionedBridge.sol/contract.PermissionedBridge.html">PermissionedBridge</a></li><li class="chapter-item "><a href="src/Structs.sol/library.Structs.html">Structs</a></li><li class="chapter-item "><a href="src/Vault.sol/abstract.Vault.html">Vault</a></li></ol>
+                <ol class="chapter"><li class="chapter-item "><a href="index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">src</li><li class="chapter-item "><a href="src/BridgeServiceManager.sol/contract.BridgeServiceManager.html">BridgeServiceManager</a></li><li class="chapter-item "><a href="src/ECDSAUtils.sol/contract.ECDSAUtils.html">ECDSAUtils</a></li><li class="chapter-item "><a href="src/Events.sol/contract.Events.html">Events</a></li><li class="chapter-item "><a href="src/PermissionedBridge.sol/contract.PermissionedBridge.html">PermissionedBridge</a></li><li class="chapter-item "><a href="src/Structs.sol/library.Structs.html">Structs</a></li><li class="chapter-item "><a href="src/Vault.sol/abstract.Vault.html">Vault</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -200,7 +200,7 @@ Operators are incentivized through application rewards and penalized through sta
 <p><strong>Contracts</strong>:</p>
 <ul>
 <li><code>ECDSAUtils.sol</code>: Provides ECDSA signature utilities.</li>
-<li><code>EigenLayerBridge.sol</code>: Manages bridge operations and attestation validations.</li>
+<li><code>BridgeServiceManager.sol</code>: Manages bridge operations and attestation validations.</li>
 <li><code>PermissionedBridge.sol</code>: Manages bridge operations with manually set operator weights.</li>
 <li><code>Events.sol</code>: Contains event definitions for bridge operations.</li>
 <li><code>Structs.sol</code>: Defines structs and related functions for bridge operations.</li>
@@ -210,7 +210,7 @@ Operators are incentivized through application rewards and penalized through sta
 <li>
 <p><strong>Tests</strong>:</p>
 <ul>
-<li><code>EigenLayerBridge.t.sol</code>: Tests for <code>EigenLayerBridge.sol</code>.</li>
+<li><code>EigenLayerBridge.t.sol</code>: Tests for <code>BridgeServiceManager.sol</code>.</li>
 <li><code>PermissionedBridge.t.sol</code>: Tests for <code>PermissionedBridge.sol</code>.</li>
 </ul>
 </li>
@@ -460,54 +460,10 @@ Vault), alice, 0);
 <p>This project is licensed under the UNLICENSED License.</p>
 <h2 id="disclaimer"><a class="header" href="#disclaimer">Disclaimer</a></h2>
 <p>This project is provided "as is" with no guarantees or warranties. It is intended as a proof of concept only and should not be used in production environments. Use at your own risk.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="ecdsautils"><a class="header" href="#ecdsautils">ECDSAUtils</a></h1>
-<p><a href="https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/ECDSAUtils.sol">Git Source</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="bridgeservicemanager"><a class="header" href="#bridgeservicemanager">BridgeServiceManager</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/BridgeServiceManager.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
-EIP712</p>
-<p>Provides ECDSA signature utilities for verifying bridge request data</p>
-<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
-<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
-<p>Initializes the EIP712 domain with the given name and version</p>
-<pre><code class="language-solidity">constructor(string memory name, string memory version) EIP712(name, version);
-</code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>name</code></td><td><code>string</code></td><td>The user-readable name of the signing domain</td></tr>
-<tr><td><code>version</code></td><td><code>string</code></td><td>The current major version of the signing domain</td></tr>
-</tbody></table>
-</div>
-<h3 id="getdigest"><a class="header" href="#getdigest">getDigest</a></h3>
-<p>Computes the EIP712 digest for the given bridge request data</p>
-<pre><code class="language-solidity">function getDigest(Structs.BridgeRequestData memory data) public view returns (bytes32);
-</code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data to be hashed</td></tr>
-</tbody></table>
-</div>
-<p><strong>Returns</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>The EIP712 hash of the given bridge request data</td></tr>
-</tbody></table>
-</div>
-<h3 id="getsigner"><a class="header" href="#getsigner">getSigner</a></h3>
-<p>Recovers the signer address from the given bridge request data and signature</p>
-<pre><code class="language-solidity">function getSigner(Structs.BridgeRequestData memory data, bytes memory signature) public view returns (address);
-</code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data that was signed</td></tr>
-<tr><td><code>signature</code></td><td><code>bytes</code></td><td>The ECDSA signature</td></tr>
-</tbody></table>
-</div>
-<p><strong>Returns</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of the signer</td></tr>
-</tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="bridgeservicemanager"><a class="header" href="#bridgeservicemanager">BridgeServiceManager</a></h1>
-<p><a href="https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/EigenLayerBridge.sol">Git Source</a></p>
-<p><strong>Inherits:</strong>
-ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstract.Vault.html">Vault</a></p>
+ECDSAServiceManagerBase, <a href="src/BridgeServiceManager.sol//src/Vault.sol/abstract.Vault.html">Vault</a></p>
 <p>Manages bridge operations and attestation validations</p>
 <p><em>Extends ECDSAServiceManagerBase and Vault for bridging and staking functionality</em></p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
@@ -521,8 +477,8 @@ ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstra
 <p><em>Helpful for determining when enough attestations have been collected to release funds.</em></p>
 <pre><code class="language-solidity">mapping(uint256 =&gt; uint256) public bridgeRequestWeights;
 </code></pre>
-<h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
-<h3 id="constructor-1"><a class="header" href="#constructor-1">constructor</a></h3>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
 <p>Initializes the contract with the necessary addresses and parameters</p>
 <pre><code class="language-solidity">constructor(
     address _avsDirectory,
@@ -654,8 +610,52 @@ ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstra
 <p>Fallback function to receive ether</p>
 <pre><code class="language-solidity">receive() external payable;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/Events.sol">Git Source</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ecdsautils"><a class="header" href="#ecdsautils">ECDSAUtils</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/ECDSAUtils.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+EIP712</p>
+<p>Provides ECDSA signature utilities for verifying bridge request data</p>
+<h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
+<h3 id="constructor-1"><a class="header" href="#constructor-1">constructor</a></h3>
+<p>Initializes the EIP712 domain with the given name and version</p>
+<pre><code class="language-solidity">constructor(string memory name, string memory version) EIP712(name, version);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>string</code></td><td>The user-readable name of the signing domain</td></tr>
+<tr><td><code>version</code></td><td><code>string</code></td><td>The current major version of the signing domain</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdigest"><a class="header" href="#getdigest">getDigest</a></h3>
+<p>Computes the EIP712 digest for the given bridge request data</p>
+<pre><code class="language-solidity">function getDigest(Structs.BridgeRequestData memory data) public view returns (bytes32);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data to be hashed</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>The EIP712 hash of the given bridge request data</td></tr>
+</tbody></table>
+</div>
+<h3 id="getsigner"><a class="header" href="#getsigner">getSigner</a></h3>
+<p>Recovers the signer address from the given bridge request data and signature</p>
+<pre><code class="language-solidity">function getSigner(Structs.BridgeRequestData memory data, bytes memory signature) public view returns (address);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data that was signed</td></tr>
+<tr><td><code>signature</code></td><td><code>bytes</code></td><td>The ECDSA signature</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of the signer</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/Events.sol">Git Source</a></p>
 <p>Contains event definitions for bridge operations</p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="bridgerequest"><a class="header" href="#bridgerequest">BridgeRequest</a></h3>
@@ -705,7 +705,7 @@ ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstra
 <tr><td><code>amountOut</code></td><td><code>uint256</code></td><td>The amount of tokens released</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="permissionedbridge"><a class="header" href="#permissionedbridge">PermissionedBridge</a></h1>
-<p><a href="https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/PermissionedBridge.sol">Git Source</a></p>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/PermissionedBridge.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/PermissionedBridge.sol//src/Vault.sol/abstract.Vault.html">Vault</a></p>
 <p>Manages bridge operations with manually set operator weights</p>
@@ -817,7 +817,7 @@ ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstra
 <pre><code class="language-solidity">receive() external payable;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="structs"><a class="header" href="#structs">Structs</a></h1>
-<p><a href="https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/Structs.sol">Git Source</a></p>
 <p>Contains struct definitions and related functions for bridge operations</p>
 <h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
 <h3 id="hash"><a class="header" href="#hash">hash</a></h3>
@@ -858,7 +858,7 @@ ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstra
 <tr><td><code>transferIndex</code></td><td><code>uint256</code></td><td>The transfer index for unique tracking</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="vault"><a class="header" href="#vault">Vault</a></h1>
-<p><a href="https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/Vault.sol">Git Source</a></p>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/Vault.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/Vault.sol//src/ECDSAUtils.sol/contract.ECDSAUtils.html">ECDSAUtils</a>, <a href="src/Vault.sol//src/Events.sol/contract.Events.html">Events</a>, ReentrancyGuard, OwnableUpgradeable</p>
 <p>Abstract contract providing common vault functionality for bridge contracts</p>
