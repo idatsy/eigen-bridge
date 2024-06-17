@@ -1,0 +1,1019 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Eigen-Bridge</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="book.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">src</li><li class="chapter-item "><a href="src/ECDSAUtils.sol/contract.ECDSAUtils.html">ECDSAUtils</a></li><li class="chapter-item "><a href="src/EigenLayerBridge.sol/contract.BridgeServiceManager.html">BridgeServiceManager</a></li><li class="chapter-item "><a href="src/Events.sol/contract.Events.html">Events</a></li><li class="chapter-item "><a href="src/PermissionedBridge.sol/contract.PermissionedBridge.html">PermissionedBridge</a></li><li class="chapter-item "><a href="src/Structs.sol/library.Structs.html">Structs</a></li><li class="chapter-item "><a href="src/Vault.sol/abstract.Vault.html">Vault</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Eigen-Bridge</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/idatsy/eigen-bridge" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="eigen-bridge---proof-of-concept-cross-chain-bridge-secured-by-eigenlayer"><a class="header" href="#eigen-bridge---proof-of-concept-cross-chain-bridge-secured-by-eigenlayer">Eigen-Bridge - Proof of Concept Cross-Chain Bridge Secured by EigenLayer</a></h1>
+<p><img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build Status" />
+<img src="https://img.shields.io/badge/license-UNLICENSED-blue.svg" alt="License" /></p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>This project is a proof of concept for a decentralized bridge secured with attestations by EigenLayer's AVS operators.
+The goal is to demonstrate how EigenLayer can be used to secure cross-chain token transfers without direct communication between chains.
+Arbitrary message passing allows not only instantaneous settlement but also the ability to transfer between non VM-compatible chains such as Ethereum and Solana, or Bitcoin.</p>
+<h3 id="what-is-eigenlayer"><a class="header" href="#what-is-eigenlayer">What is EigenLayer?</a></h3>
+<p>EigenLayer is a protocol that allows operators to receive delegated stake in order to secure various applications (such as applications relying on off-chain state).
+Operators are incentivized through application rewards and penalized through stake slashing if they act maliciously.</p>
+<p>EigenLayer relies on at least one smart contract interacting with the EigenLayer protocol, that registers and tracks operators and their stake, as well as defines the rules for rewards and penalties.</p>
+<h3 id="objective"><a class="header" href="#objective">Objective</a></h3>
+<p>This proof of concept aims to showcase the potential of EigenLayer in securing decentralized bridges. It includes smart contracts that handle bridging operations, attestation verification, and slashing mechanisms.</p>
+<h2 id="project-structure"><a class="header" href="#project-structure">Project Structure</a></h2>
+<ul>
+<li>
+<p><strong>Contracts</strong>:</p>
+<ul>
+<li><code>ECDSAUtils.sol</code>: Provides ECDSA signature utilities.</li>
+<li><code>EigenLayerBridge.sol</code>: Manages bridge operations and attestation validations.</li>
+<li><code>PermissionedBridge.sol</code>: Manages bridge operations with manually set operator weights.</li>
+<li><code>Events.sol</code>: Contains event definitions for bridge operations.</li>
+<li><code>Structs.sol</code>: Defines structs and related functions for bridge operations.</li>
+<li><code>Vault.sol</code>: Abstract contract providing common vault functionality for bridge contracts.</li>
+</ul>
+</li>
+<li>
+<p><strong>Tests</strong>:</p>
+<ul>
+<li><code>EigenLayerBridge.t.sol</code>: Tests for <code>EigenLayerBridge.sol</code>.</li>
+<li><code>PermissionedBridge.t.sol</code>: Tests for <code>PermissionedBridge.sol</code>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h2>
+<h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
+<ul>
+<li><a href="https://getfoundry.sh/">Foundry</a></li>
+</ul>
+<h3 id="installation"><a class="header" href="#installation">Installation</a></h3>
+<ol>
+<li>
+<p><strong>Clone the repository</strong>:</p>
+<pre><code class="language-bash">git clone https://github.com/your-repo/eigenlayer-bridge.git
+cd eigenlayer-bridge
+</code></pre>
+</li>
+<li>
+<p><strong>Install Foundry</strong>:</p>
+<pre><code class="language-bash">curl -L https://foundry.paradigm.xyz | bash
+foundryup
+</code></pre>
+</li>
+</ol>
+<h3 id="running-tests"><a class="header" href="#running-tests">Running Tests</a></h3>
+<p>To run the tests, use the Foundry framework. Running the tests requires an HTTP endpoint to Ethereum mainnet.</p>
+<blockquote>
+<p>The tests use an anvil fork-test from latest Ethereum mainnet state in order to simulate a realistic environment.</p>
+</blockquote>
+<pre><code class="language-bash">forge test --rpc-url &lt;RPC_URL&gt;
+</code></pre>
+<h2 id="detailed-explanations"><a class="header" href="#detailed-explanations">Detailed Explanations</a></h2>
+<h3 id="ecdsa-signature-verification"><a class="header" href="#ecdsa-signature-verification">ECDSA Signature Verification</a></h3>
+<p>The <code>ECDSAUtils</code> contract provides utilities for verifying ECDSA signatures. These utilities are essential for ensuring the authenticity and integrity of the bridge request data. The process involves two main functions:</p>
+<ol>
+<li><strong>getDigest</strong>: Computes the EIP712 digest of the bridge request data, which is used for signing.</li>
+<li><strong>getSigner</strong>: Recovers the signer's address from the given bridge request data and signature.</li>
+</ol>
+<h4 id="example-function-getdigest"><a class="header" href="#example-function-getdigest">Example Function: <code>getDigest</code></a></h4>
+<p>This function computes the EIP712 digest for the given bridge request data, ensuring that the data can be signed in a standardized and secure way.</p>
+<pre><code class="language-solidity">function getDigest(Structs.BridgeRequestData memory data) public view returns (bytes32) {
+    return _hashTypedDataV4(
+        keccak256(
+            abi.encode(
+                keccak256(
+                    "BridgeRequestData(address user,address tokenAddress,uint256 amountIn,uint256 amountOut,address destinationVault,address destinationAddress,uint256 transferIndex)"
+                ),
+                data.user,
+                data.tokenAddress,
+                data.amountIn,
+                data.amountOut,
+                data.destinationVault,
+                data.destinationAddress,
+                data.transferIndex
+            )
+        )
+    );
+}
+</code></pre>
+<h3 id="attestation-mechanism"><a class="header" href="#attestation-mechanism">Attestation Mechanism</a></h3>
+<p>The attestation mechanism leverages EigenLayer's AVS operators to secure the bridge. Here's a detailed explanation of the process:</p>
+<ol>
+<li><strong>Bridge Request Creation</strong>: A user creates a bridge request, which is stored on-chain and emits an event for operators to observe.</li>
+<li><strong>Signature Collection</strong>: AVS operators observe the bridge request event and sign the request data using their private keys. These signatures are then submitted back to the bridge contract.</li>
+<li><strong>Attestation Verification</strong>: The bridge contract verifies these signatures to ensure they are from valid operators with sufficient stake.</li>
+<li><strong>Fund Release</strong>: Once the contract verifies that enough valid signatures (attestations) have been collected, it releases the funds to the destination address.</li>
+</ol>
+<h4 id="example-function-publishattestation"><a class="header" href="#example-function-publishattestation">Example Function: <code>publishAttestation</code></a></h4>
+<p>This function allows an AVS operator to publish an attestation for a bridge request. It verifies the operator's weight and ensures no double attestations for the same request.</p>
+<pre><code class="language-solidity">function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant onlyOperator {
+    require(operatorHasMinimumWeight(msg.sender), "Operator does not have minimum weight");
+    require(!operatorResponses[msg.sender][_bridgeRequestId], "Operator has already responded to the task");
+    require(msg.sender == getSigner(bridgeRequests[_bridgeRequestId], attestation), "Invalid attestation signature");
+
+    uint256 operatorWeight = getOperatorWeight(msg.sender);
+    bridgeRequestWeights[_bridgeRequestId] += operatorWeight;
+
+    rewardAttestation(msg.sender);
+
+    emit AVSAttestation(attestation, _bridgeRequestId, operatorWeight);
+}
+</code></pre>
+<h3 id="fund-release-process"><a class="header" href="#fund-release-process">Fund Release Process</a></h3>
+<p>The fund release process is critical to ensuring that the bridge operates securely and efficiently. The process involves the following steps:</p>
+<ol>
+<li><strong>Signature Verification</strong>: The contract verifies that the submitted signatures are valid and from authorized operators.</li>
+<li><strong>Weight Calculation</strong>: It sums the weights of the valid signatures to ensure that the total weight meets or exceeds the required threshold.</li>
+<li><strong>Fund Transfer</strong>: If the total weight is sufficient, the contract transfers the funds to the destination address.</li>
+<li><strong>Incentivizing Validators</strong>: The contract pays out gas costs and a small incentive to the caller who initiates the fund release, encouraging users to participate in this final step.</li>
+</ol>
+<h4 id="example-function-releasefunds"><a class="header" href="#example-function-releasefunds">Example Function: <code>releaseFunds</code></a></h4>
+<p>This function releases the funds to the destination address once the required attestations are verified. It ensures the transaction's economic security by checking the total attested weight.</p>
+<pre><code class="language-solidity">function releaseFunds(bytes[] memory signatures, Structs.BridgeRequestData memory data) public nonReentrant {
+    uint256 totalWeight = 0;
+    for (uint256 i = 0; i &lt; signatures.length; i++) {
+        address signer = getSigner(data, signatures[i]);
+        require(operatorResponses[signer][data.transferIndex], "Invalid signature");
+        totalWeight += getOperatorWeight(signer);
+    }
+
+    require(totalWeight &gt;= data.amountOut, "Insufficient total weight to cover swap");
+    IERC20(data.tokenAddress).transfer(data.destinationAddress, data.amountOut);
+
+    payoutCrankGasCost();
+
+    emit FundsReleased(data.tokenAddress, data.destinationAddress, data.amountOut);
+}
+</code></pre>
+<h3 id="avs-interactions"><a class="header" href="#avs-interactions">AVS Interactions</a></h3>
+<p>EigenLayer's AVS operators play a crucial role in the security of the bridge. These operators:</p>
+<ol>
+<li><strong>Monitor</strong>: Observe events emitted by the bridge contract to detect new bridge requests.</li>
+<li><strong>Sign</strong>: Validate the bridge request and provide their signature as an attestation.</li>
+<li><strong>Submit</strong>: Send their attestations back to the bridge contract.</li>
+<li><strong>Get Rewarded</strong>: Receive rewards for valid attestations and get penalized for any malicious activities through slashing.</li>
+</ol>
+<p>These interactions ensure that the bridge is both secure and decentralized, relying on the collective security provided by the EigenLayer's staked operators.</p>
+<h2 id="testing"><a class="header" href="#testing">Testing</a></h2>
+<h3 id="introduction"><a class="header" href="#introduction">Introduction</a></h3>
+<p>This section covers the testing of our smart contracts using the Forge test framework. The tests are written in Solidity and simulate various scenarios to ensure the correctness of the bridge operations and attestation mechanisms.</p>
+<h3 id="setting-up-the-test-environment"><a class="header" href="#setting-up-the-test-environment">Setting Up the Test Environment</a></h3>
+<p>The test environment is set up using the <code>setUp</code> function in each test contract. This function initializes the contract instances, allocates initial balances, and configures the necessary parameters.</p>
+<h4 id="example-setup-function"><a class="header" href="#example-setup-function">Example Setup Function</a></h4>
+<pre><code class="language-solidity">function setUp() public {
+    (operator, operatorPrivateKey) = makeAddrAndKey("operator");
+
+    localVault = new BridgeServiceManager(
+        aVSDirectory, stakeRegistry, rewardsCoordinator, delegationManager,
+        crankGasCost, 0, bridgeFee, "PermissionedBridge", "1"
+    );
+    localVault.initialize();
+
+    remoteVault = new BridgeServiceManager(
+        aVSDirectory, stakeRegistry, rewardsCoordinator, delegationManager,
+        crankGasCost, 0, bridgeFee, "PermissionedBridge", "1"
+    );
+    remoteVault.initialize();
+
+    deal(bob, 1 ether);
+    deal(usdc, bob, 1000 * 10**6);
+    deal(usdc, address(remoteVault), 1000 * 10**6);
+    deal(operator, 1 ether);
+}
+</code></pre>
+<h3 id="test-cases"><a class="header" href="#test-cases">Test Cases</a></h3>
+<h4 id="test-case-1-bridge-request-emission"><a class="header" href="#test-case-1-bridge-request-emission">Test Case 1: Bridge Request Emission</a></h4>
+<p>This test case ensures that a bridge request emits the correct events when created.</p>
+<pre><code class="language-solidity">function testBridgeRequestEmitEvents() public returns (Structs.BridgeRequestData memory) {
+    vm.startPrank(bob);
+
+    IERC20(usdc).approve(address(localVault), 1000 * 10**6);
+
+    vm.expectEmit(true, true, true, true);
+    emit Events.BridgeRequest(bob, usdc, 0, 1000 * 10**6, 1000 * 10**6, address(remote
+
+Vault), alice, 0);
+
+    localVault.bridge{value: bridgeFee}(usdc, 1000 * 10**6, 1000 * 10**6, address(remoteVault), alice);
+
+    vm.stopPrank();
+
+    return Structs.BridgeRequestData(
+        bob,
+        usdc,
+        1000 * 10**6,
+        1000 * 10**6,
+        address(remoteVault),
+        alice,
+        0
+    );
+}
+</code></pre>
+<h4 id="test-case-2-operator-attestation-submission"><a class="header" href="#test-case-2-operator-attestation-submission">Test Case 2: Operator Attestation Submission</a></h4>
+<p>This test case verifies that an operator can submit an attestation for a bridge request.</p>
+<pre><code class="language-solidity">function testOperatorCanSubmitAttestation() public {
+    testBridgeRequestEmitEvents();
+
+    (
+    address user,
+    address tokenAddress,
+    uint256 amountIn,
+    uint256 amountOut,
+    address destinationVault,
+    address destinationAddress,
+    uint256 transferIndex
+    ) = localVault.bridgeRequests(0);
+
+    Structs.BridgeRequestData memory bridgeRequest = Structs.BridgeRequestData(
+        user,
+        tokenAddress,
+        amountIn,
+        amountOut,
+        destinationVault,
+        destinationAddress,
+        transferIndex
+    );
+
+    bytes memory attestation = signBridgeRequestData(localVault, bridgeRequest, operatorPrivateKey);
+
+    vm.prank(operator);
+    vm.expectEmit(true, true, true, true);
+    emit Events.AVSAttestation(attestation, 0, 1000 ether);
+
+    localVault.publishAttestation(attestation, 0);
+}
+</code></pre>
+<h4 id="test-case-3-fund-release-completion"><a class="header" href="#test-case-3-fund-release-completion">Test Case 3: Fund Release Completion</a></h4>
+<p>This test case ensures that the bridge completes and releases funds correctly.</p>
+<pre><code class="language-solidity">function testBridgeCompletesReleaseFunds() public {
+    testBridgeRequestEmitEvents();
+
+    (
+        address user,
+        address tokenAddress,
+        uint256 amountIn,
+        uint256 amountOut,
+        address destinationVault,
+        address destinationAddress,
+        uint256 transferIndex
+    ) = localVault.bridgeRequests(0);
+
+    Structs.BridgeRequestData memory bridgeRequest = Structs.BridgeRequestData(
+        user,
+        tokenAddress,
+        amountIn,
+        amountOut,
+        destinationVault,
+        destinationAddress,
+        transferIndex
+    );
+
+    bytes memory attestation = signBridgeRequestData(remoteVault, bridgeRequest, operatorPrivateKey);
+    bytes[] memory bridgeRequestSignatures = new bytes[](1);
+    bridgeRequestSignatures[0] = attestation;
+
+    assertEq(IERC20(usdc).balanceOf(address(remoteVault)), 1000 * 10**6);
+    assertEq(IERC20(usdc).balanceOf(alice), 0);
+
+    vm.prank(alice);
+    remoteVault.releaseFunds(bridgeRequestSignatures, bridgeRequest);
+
+    assertEq(IERC20(usdc).balanceOf(address(remoteVault)), 0);
+    assertEq(IERC20(usdc).balanceOf(alice), 1000 * 10**6);
+}
+</code></pre>
+<h2 id="license"><a class="header" href="#license">License</a></h2>
+<p>This project is licensed under the UNLICENSED License.</p>
+<h2 id="disclaimer"><a class="header" href="#disclaimer">Disclaimer</a></h2>
+<p>This project is provided "as is" with no guarantees or warranties. It is intended as a proof of concept only and should not be used in production environments. Use at your own risk.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ecdsautils"><a class="header" href="#ecdsautils">ECDSAUtils</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/ECDSAUtils.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+EIP712</p>
+<p>Provides ECDSA signature utilities for verifying bridge request data</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
+<p>Initializes the EIP712 domain with the given name and version</p>
+<pre><code class="language-solidity">constructor(string memory name, string memory version) EIP712(name, version);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td><code>string</code></td><td>The user-readable name of the signing domain</td></tr>
+<tr><td><code>version</code></td><td><code>string</code></td><td>The current major version of the signing domain</td></tr>
+</tbody></table>
+</div>
+<h3 id="getdigest"><a class="header" href="#getdigest">getDigest</a></h3>
+<p>Computes the EIP712 digest for the given bridge request data</p>
+<pre><code class="language-solidity">function getDigest(Structs.BridgeRequestData memory data) public view returns (bytes32);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data to be hashed</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>The EIP712 hash of the given bridge request data</td></tr>
+</tbody></table>
+</div>
+<h3 id="getsigner"><a class="header" href="#getsigner">getSigner</a></h3>
+<p>Recovers the signer address from the given bridge request data and signature</p>
+<pre><code class="language-solidity">function getSigner(Structs.BridgeRequestData memory data, bytes memory signature) public view returns (address);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data that was signed</td></tr>
+<tr><td><code>signature</code></td><td><code>bytes</code></td><td>The ECDSA signature</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of the signer</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="bridgeservicemanager"><a class="header" href="#bridgeservicemanager">BridgeServiceManager</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/EigenLayerBridge.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+ECDSAServiceManagerBase, <a href="src/EigenLayerBridge.sol//src/Vault.sol/abstract.Vault.html">Vault</a></p>
+<p>Manages bridge operations and attestation validations</p>
+<p><em>Extends ECDSAServiceManagerBase and Vault for bridging and staking functionality</em></p>
+<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
+<h3 id="operatorresponses"><a class="header" href="#operatorresponses">operatorResponses</a></h3>
+<p>Tracks bridge requests that this operator has responded to once to avoid duplications</p>
+<p><em>Double attestations would technically be valid and allow operators to recursively call until funds are released</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; mapping(uint256 =&gt; bool)) public operatorResponses;
+</code></pre>
+<h3 id="bridgerequestweights"><a class="header" href="#bridgerequestweights">bridgeRequestWeights</a></h3>
+<p>Tracks the total operator weight attested to a bridge request</p>
+<p><em>Helpful for determining when enough attestations have been collected to release funds.</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; uint256) public bridgeRequestWeights;
+</code></pre>
+<h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
+<h3 id="constructor-1"><a class="header" href="#constructor-1">constructor</a></h3>
+<p>Initializes the contract with the necessary addresses and parameters</p>
+<pre><code class="language-solidity">constructor(
+    address _avsDirectory,
+    address _stakeRegistry,
+    address _rewardsCoordinator,
+    address _delegationManager,
+    uint256 _crankGasCost,
+    uint256 _AVSReward,
+    uint256 _bridgeFee,
+    string memory _name,
+    string memory _version
+)
+    ECDSAServiceManagerBase(_avsDirectory, _stakeRegistry, _rewardsCoordinator, _delegationManager)
+    Vault(_crankGasCost, _AVSReward, _bridgeFee, _name, _version);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_avsDirectory</code></td><td><code>address</code></td><td>The address of the AVS directory contract, managing AVS-related data for registered operators</td></tr>
+<tr><td><code>_stakeRegistry</code></td><td><code>address</code></td><td>The address of the stake registry contract, managing registration and stake recording</td></tr>
+<tr><td><code>_rewardsCoordinator</code></td><td><code>address</code></td><td>The address of the rewards coordinator contract, handling rewards distributions</td></tr>
+<tr><td><code>_delegationManager</code></td><td><code>address</code></td><td>The address of the delegation manager contract, managing staker delegations to operators</td></tr>
+<tr><td><code>_crankGasCost</code></td><td><code>uint256</code></td><td>The estimated gas cost for calling release funds, used to calculate rebate and incentivize users to call</td></tr>
+<tr><td><code>_AVSReward</code></td><td><code>uint256</code></td><td>The total reward for AVS attestation</td></tr>
+<tr><td><code>_bridgeFee</code></td><td><code>uint256</code></td><td>The total fee charged to the user for bridging</td></tr>
+<tr><td><code>_name</code></td><td><code>string</code></td><td>The name of the contract, used for EIP-712 domain construction</td></tr>
+<tr><td><code>_version</code></td><td><code>string</code></td><td>The version of the contract, used for EIP-712 domain construction</td></tr>
+</tbody></table>
+</div>
+<h3 id="onlyoperator"><a class="header" href="#onlyoperator">onlyOperator</a></h3>
+<p>Ensures that only registered operators can call the function</p>
+<pre><code class="language-solidity">modifier onlyOperator();
+</code></pre>
+<h3 id="rewardattestation"><a class="header" href="#rewardattestation">rewardAttestation</a></h3>
+<p>Rewards the operator for providing a valid attestation</p>
+<p><em>Placeholder for actual AVS reward distribution pending Eigen M2 implementation</em></p>
+<pre><code class="language-solidity">function rewardAttestation(address operator) internal;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator to be rewarded</td></tr>
+</tbody></table>
+</div>
+<h3 id="publishattestation"><a class="header" href="#publishattestation">publishAttestation</a></h3>
+<p>Publishes an attestation for a bridge request</p>
+<pre><code class="language-solidity">function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant onlyOperator;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>attestation</code></td><td><code>bytes</code></td><td>The signed attestation</td></tr>
+<tr><td><code>_bridgeRequestId</code></td><td><code>uint256</code></td><td>The ID of the bridge request</td></tr>
+</tbody></table>
+</div>
+<h3 id="slashmaliciousattestor"><a class="header" href="#slashmaliciousattestor">slashMaliciousAttestor</a></h3>
+<p>Slashes a malicious attestor's stake</p>
+<p><em>Placeholder for slashing logic pending Eigen implementations</em></p>
+<pre><code class="language-solidity">function slashMaliciousAttestor(address operator, uint256 penalty) internal;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator to be slashed</td></tr>
+<tr><td><code>penalty</code></td><td><code>uint256</code></td><td>The penalty amount to be slashed</td></tr>
+</tbody></table>
+</div>
+<h3 id="challengeattestation"><a class="header" href="#challengeattestation">challengeAttestation</a></h3>
+<p>Challenges a potentially fraudulent attestation</p>
+<pre><code class="language-solidity">function challengeAttestation(
+    bytes memory fraudulentSignature,
+    Structs.BridgeRequestData memory fraudulentBridgeRequest
+) public nonReentrant;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>fraudulentSignature</code></td><td><code>bytes</code></td><td>The signature of the fraudulent attestation</td></tr>
+<tr><td><code>fraudulentBridgeRequest</code></td><td><code>Structs.BridgeRequestData</code></td><td>The data of the fraudulent bridge request</td></tr>
+</tbody></table>
+</div>
+<h3 id="payoutcrankgascost"><a class="header" href="#payoutcrankgascost">payoutCrankGasCost</a></h3>
+<p>Payouts the crank gas cost to the caller</p>
+<pre><code class="language-solidity">function payoutCrankGasCost() internal;
+</code></pre>
+<h3 id="_releasefunds"><a class="header" href="#_releasefunds">_releaseFunds</a></h3>
+<p>Releases funds to the destination address</p>
+<pre><code class="language-solidity">function _releaseFunds(bytes memory data) public override nonReentrant;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>bytes</code></td><td>The bridge request data and signatures</td></tr>
+</tbody></table>
+</div>
+<h3 id="releasefunds"><a class="header" href="#releasefunds">releaseFunds</a></h3>
+<p>Releases funds to the destination address with typed data for ABI construction</p>
+<pre><code class="language-solidity">function releaseFunds(bytes[] memory signatures, Structs.BridgeRequestData memory data) public nonReentrant;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>signatures</code></td><td><code>bytes[]</code></td><td>The signatures of the operators attesting to the bridge request</td></tr>
+<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data</td></tr>
+</tbody></table>
+</div>
+<h3 id="operatorhasminimumweight"><a class="header" href="#operatorhasminimumweight">operatorHasMinimumWeight</a></h3>
+<p>Checks if the operator has the minimum required weight</p>
+<pre><code class="language-solidity">function operatorHasMinimumWeight(address operator) public view returns (bool);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bool</code></td><td>True if the operator has the minimum weight, false otherwise</td></tr>
+</tbody></table>
+</div>
+<h3 id="getoperatorweight"><a class="header" href="#getoperatorweight">getOperatorWeight</a></h3>
+<p>Gets the weight of an operator</p>
+<pre><code class="language-solidity">function getOperatorWeight(address operator) public view returns (uint256);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The weight of the operator</td></tr>
+</tbody></table>
+</div>
+<h3 id="receive"><a class="header" href="#receive">receive</a></h3>
+<p>Fallback function to receive ether</p>
+<pre><code class="language-solidity">receive() external payable;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/Events.sol">Git Source</a></p>
+<p>Contains event definitions for bridge operations</p>
+<h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
+<h3 id="bridgerequest"><a class="header" href="#bridgerequest">BridgeRequest</a></h3>
+<p>Emitted when a new bridge request is created</p>
+<pre><code class="language-solidity">event BridgeRequest(
+    address indexed user,
+    address indexed tokenAddress,
+    uint256 indexed bridgeRequestId,
+    uint256 amountIn,
+    uint256 amountOut,
+    address destinationVault,
+    address destinationAddress,
+    uint256 transferIndex
+);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>user</code></td><td><code>address</code></td><td>The address of the user initiating the bridge request</td></tr>
+<tr><td><code>tokenAddress</code></td><td><code>address</code></td><td>The address of the token to be bridged</td></tr>
+<tr><td><code>bridgeRequestId</code></td><td><code>uint256</code></td><td>The unique ID of the bridge request</td></tr>
+<tr><td><code>amountIn</code></td><td><code>uint256</code></td><td>The amount of tokens to be bridged</td></tr>
+<tr><td><code>amountOut</code></td><td><code>uint256</code></td><td>The amount of tokens expected at the destination</td></tr>
+<tr><td><code>destinationVault</code></td><td><code>address</code></td><td>The address of the destination vault</td></tr>
+<tr><td><code>destinationAddress</code></td><td><code>address</code></td><td>The address of the recipient at the destination</td></tr>
+<tr><td><code>transferIndex</code></td><td><code>uint256</code></td><td>The transfer index for unique tracking</td></tr>
+</tbody></table>
+</div>
+<h3 id="avsattestation"><a class="header" href="#avsattestation">AVSAttestation</a></h3>
+<p>Emitted when an attestation is published by an AVS operator</p>
+<pre><code class="language-solidity">event AVSAttestation(bytes indexed attestation, uint256 indexed bridgeRequestId, uint256 indexed operatorWeight);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>attestation</code></td><td><code>bytes</code></td><td>The attestation data</td></tr>
+<tr><td><code>bridgeRequestId</code></td><td><code>uint256</code></td><td>The ID of the bridge request</td></tr>
+<tr><td><code>operatorWeight</code></td><td><code>uint256</code></td><td>The weight of the operator attesting</td></tr>
+</tbody></table>
+</div>
+<h3 id="fundsreleased"><a class="header" href="#fundsreleased">FundsReleased</a></h3>
+<p>Emitted when funds are released to the destination address</p>
+<pre><code class="language-solidity">event FundsReleased(address indexed destinationVault, address indexed destinationAddress, uint256 indexed amountOut);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>destinationVault</code></td><td><code>address</code></td><td>The address of the destination vault</td></tr>
+<tr><td><code>destinationAddress</code></td><td><code>address</code></td><td>The address of the recipient at the destination</td></tr>
+<tr><td><code>amountOut</code></td><td><code>uint256</code></td><td>The amount of tokens released</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="permissionedbridge"><a class="header" href="#permissionedbridge">PermissionedBridge</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/PermissionedBridge.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+<a href="src/PermissionedBridge.sol//src/Vault.sol/abstract.Vault.html">Vault</a></p>
+<p>Manages bridge operations with manually set operator weights</p>
+<p><em>Extends Vault for bridging functionality</em></p>
+<h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
+<h3 id="operatorresponses-1"><a class="header" href="#operatorresponses-1">operatorResponses</a></h3>
+<p>Tracks bridge requests that this operator has responded to once to avoid duplications</p>
+<p><em>Double attestations would technically be valid and allow operators to recursively call until funds are released</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; mapping(uint256 =&gt; bool)) public operatorResponses;
+</code></pre>
+<h3 id="bridgerequestweights-1"><a class="header" href="#bridgerequestweights-1">bridgeRequestWeights</a></h3>
+<p>Tracks the total operator weight attested to a bridge request</p>
+<p><em>Helpful for determining when enough attestations have been collected to release funds.</em></p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; uint256) public bridgeRequestWeights;
+</code></pre>
+<h3 id="operatorweights"><a class="header" href="#operatorweights">operatorWeights</a></h3>
+<p>Maps operator addresses to their respective weights</p>
+<p><em>Temporary solution for illustrative purposes on non-mainnet chains</em></p>
+<pre><code class="language-solidity">mapping(address =&gt; uint256) public operatorWeights;
+</code></pre>
+<h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
+<h3 id="constructor-2"><a class="header" href="#constructor-2">constructor</a></h3>
+<p>Initializes the contract with the necessary parameters</p>
+<pre><code class="language-solidity">constructor(uint256 _crankGasCost, uint256 _AVSReward, uint256 _bridgeFee, string memory _name, string memory _version)
+    Vault(_crankGasCost, _AVSReward, _bridgeFee, _name, _version);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_crankGasCost</code></td><td><code>uint256</code></td><td>The estimated gas cost for calling release funds, used to calculate rebate and incentivize users to call</td></tr>
+<tr><td><code>_AVSReward</code></td><td><code>uint256</code></td><td>The total reward for AVS attestation</td></tr>
+<tr><td><code>_bridgeFee</code></td><td><code>uint256</code></td><td>The total fee charged to the user for bridging</td></tr>
+<tr><td><code>_name</code></td><td><code>string</code></td><td>The name of the contract, used for EIP-712 domain construction</td></tr>
+<tr><td><code>_version</code></td><td><code>string</code></td><td>The version of the contract, used for EIP-712 domain construction</td></tr>
+</tbody></table>
+</div>
+<h3 id="onlyoperator-1"><a class="header" href="#onlyoperator-1">onlyOperator</a></h3>
+<p>Ensures that only operators with non-zero weight can call the function</p>
+<pre><code class="language-solidity">modifier onlyOperator();
+</code></pre>
+<h3 id="publishattestation-1"><a class="header" href="#publishattestation-1">publishAttestation</a></h3>
+<p>Publishes an attestation for a bridge request</p>
+<pre><code class="language-solidity">function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) public nonReentrant onlyOperator;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>attestation</code></td><td><code>bytes</code></td><td>The signed attestation</td></tr>
+<tr><td><code>_bridgeRequestId</code></td><td><code>uint256</code></td><td>The ID of the bridge request</td></tr>
+</tbody></table>
+</div>
+<h3 id="_releasefunds-1"><a class="header" href="#_releasefunds-1">_releaseFunds</a></h3>
+<p>Releases funds to the destination address</p>
+<pre><code class="language-solidity">function _releaseFunds(bytes memory data) public override nonReentrant;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>bytes</code></td><td>The bridge request data and signatures</td></tr>
+</tbody></table>
+</div>
+<h3 id="releasefunds-1"><a class="header" href="#releasefunds-1">releaseFunds</a></h3>
+<p>Releases funds to the destination address with typed data for ABI construction</p>
+<pre><code class="language-solidity">function releaseFunds(bytes[] memory signatures, Structs.BridgeRequestData memory data) public nonReentrant;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>signatures</code></td><td><code>bytes[]</code></td><td>The signatures of the operators attesting to the bridge request</td></tr>
+<tr><td><code>data</code></td><td><code>Structs.BridgeRequestData</code></td><td>The bridge request data</td></tr>
+</tbody></table>
+</div>
+<h3 id="operatorhasminimumweight-1"><a class="header" href="#operatorhasminimumweight-1">operatorHasMinimumWeight</a></h3>
+<p>Checks if the operator has the minimum required weight</p>
+<pre><code class="language-solidity">function operatorHasMinimumWeight(address operator) public view returns (bool);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bool</code></td><td>True if the operator has the minimum weight, false otherwise</td></tr>
+</tbody></table>
+</div>
+<h3 id="getoperatorweight-1"><a class="header" href="#getoperatorweight-1">getOperatorWeight</a></h3>
+<p>Gets the weight of an operator</p>
+<pre><code class="language-solidity">function getOperatorWeight(address operator) public view returns (uint256);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The weight of the operator</td></tr>
+</tbody></table>
+</div>
+<h3 id="setoperatorweight"><a class="header" href="#setoperatorweight">setOperatorWeight</a></h3>
+<p>Sets the weight of an operator</p>
+<pre><code class="language-solidity">function setOperatorWeight(address operator, uint256 weight) public onlyOwner;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>operator</code></td><td><code>address</code></td><td>The address of the operator</td></tr>
+<tr><td><code>weight</code></td><td><code>uint256</code></td><td>The new weight of the operator</td></tr>
+</tbody></table>
+</div>
+<h3 id="receive-1"><a class="header" href="#receive-1">receive</a></h3>
+<p>Fallback function to receive ether</p>
+<pre><code class="language-solidity">receive() external payable;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="structs"><a class="header" href="#structs">Structs</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/Structs.sol">Git Source</a></p>
+<p>Contains struct definitions and related functions for bridge operations</p>
+<h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
+<h3 id="hash"><a class="header" href="#hash">hash</a></h3>
+<p>Computes the hash of the bridge request data</p>
+<pre><code class="language-solidity">function hash(BridgeRequestData memory data) internal pure returns (bytes32);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>BridgeRequestData</code></td><td>The bridge request data to be hashed</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>The hash of the given bridge request data</td></tr>
+</tbody></table>
+</div>
+<h2 id="structs-1"><a class="header" href="#structs-1">Structs</a></h2>
+<h3 id="bridgerequestdata"><a class="header" href="#bridgerequestdata">BridgeRequestData</a></h3>
+<p>Structure representing bridge request data</p>
+<pre><code class="language-solidity">struct BridgeRequestData {
+    address user;
+    address tokenAddress;
+    uint256 amountIn;
+    uint256 amountOut;
+    address destinationVault;
+    address destinationAddress;
+    uint256 transferIndex;
+}
+</code></pre>
+<p><strong>Properties</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>user</code></td><td><code>address</code></td><td>The address of the user initiating the bridge request</td></tr>
+<tr><td><code>tokenAddress</code></td><td><code>address</code></td><td>The address of the token to be bridged</td></tr>
+<tr><td><code>amountIn</code></td><td><code>uint256</code></td><td>The amount of tokens to be bridged</td></tr>
+<tr><td><code>amountOut</code></td><td><code>uint256</code></td><td>The amount of tokens expected at the destination</td></tr>
+<tr><td><code>destinationVault</code></td><td><code>address</code></td><td>The address of the destination vault</td></tr>
+<tr><td><code>destinationAddress</code></td><td><code>address</code></td><td>The address of the recipient at the destination</td></tr>
+<tr><td><code>transferIndex</code></td><td><code>uint256</code></td><td>The transfer index for unique tracking</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="vault"><a class="header" href="#vault">Vault</a></h1>
+<p><a href="https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/Vault.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+<a href="src/Vault.sol//src/ECDSAUtils.sol/contract.ECDSAUtils.html">ECDSAUtils</a>, <a href="src/Vault.sol//src/Events.sol/contract.Events.html">Events</a>, ReentrancyGuard, OwnableUpgradeable</p>
+<p>Abstract contract providing common vault functionality for bridge contracts</p>
+<h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>
+<h3 id="nextusertransferindexes"><a class="header" href="#nextusertransferindexes">nextUserTransferIndexes</a></h3>
+<p>Stores the transfer index for each user for unique transfer tracking</p>
+<pre><code class="language-solidity">mapping(address =&gt; uint256) public nextUserTransferIndexes;
+</code></pre>
+<h3 id="currentbridgerequestid"><a class="header" href="#currentbridgerequestid">currentBridgeRequestId</a></h3>
+<p>Global unique bridge request ID</p>
+<pre><code class="language-solidity">uint256 public currentBridgeRequestId;
+</code></pre>
+<h3 id="bridgerequests"><a class="header" href="#bridgerequests">bridgeRequests</a></h3>
+<p>Stores history of bridge requests</p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; Structs.BridgeRequestData) public bridgeRequests;
+</code></pre>
+<h3 id="bridgefee"><a class="header" href="#bridgefee">bridgeFee</a></h3>
+<p>Total fee charged to the user for bridging</p>
+<pre><code class="language-solidity">uint256 public bridgeFee;
+</code></pre>
+<h3 id="avsreward"><a class="header" href="#avsreward">AVSReward</a></h3>
+<p>Total reward for AVS attestation</p>
+<pre><code class="language-solidity">uint256 public AVSReward;
+</code></pre>
+<h3 id="crankgascost"><a class="header" href="#crankgascost">crankGasCost</a></h3>
+<p>Estimated gas cost for calling release funds, used to calculate rebate and incentivize users to call</p>
+<pre><code class="language-solidity">uint256 public crankGasCost;
+</code></pre>
+<h3 id="deployer"><a class="header" href="#deployer">deployer</a></h3>
+<p>Address of the contract deployer</p>
+<pre><code class="language-solidity">address deployer;
+</code></pre>
+<h2 id="functions-4"><a class="header" href="#functions-4">Functions</a></h2>
+<h3 id="constructor-3"><a class="header" href="#constructor-3">constructor</a></h3>
+<p>Initializes the contract with the necessary parameters</p>
+<pre><code class="language-solidity">constructor(uint256 _crankGasCost, uint256 _AVSReward, uint256 _bridgeFee, string memory _name, string memory _version)
+    ECDSAUtils(_name, _version);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_crankGasCost</code></td><td><code>uint256</code></td><td>The estimated gas cost for calling release funds, used to calculate rebate and incentivize users to call</td></tr>
+<tr><td><code>_AVSReward</code></td><td><code>uint256</code></td><td>The total reward for AVS attestation</td></tr>
+<tr><td><code>_bridgeFee</code></td><td><code>uint256</code></td><td>The total fee charged to the user for bridging</td></tr>
+<tr><td><code>_name</code></td><td><code>string</code></td><td>The name of the contract, used for EIP-712 domain construction</td></tr>
+<tr><td><code>_version</code></td><td><code>string</code></td><td>The version of the contract, used for EIP-712 domain construction</td></tr>
+</tbody></table>
+</div>
+<h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
+<p>Initializes the contract and transfers ownership to the deployer</p>
+<pre><code class="language-solidity">function initialize() public initializer;
+</code></pre>
+<h3 id="setbridgefee"><a class="header" href="#setbridgefee">setBridgeFee</a></h3>
+<p>Sets the bridge fee</p>
+<pre><code class="language-solidity">function setBridgeFee(uint256 _bridgeFee) external onlyOwner;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_bridgeFee</code></td><td><code>uint256</code></td><td>The new bridge fee</td></tr>
+</tbody></table>
+</div>
+<h3 id="setavsreward"><a class="header" href="#setavsreward">setAVSReward</a></h3>
+<p>Sets the AVS reward</p>
+<pre><code class="language-solidity">function setAVSReward(uint256 _AVSReward) external onlyOwner;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_AVSReward</code></td><td><code>uint256</code></td><td>The new AVS reward</td></tr>
+</tbody></table>
+</div>
+<h3 id="setcrankgascost"><a class="header" href="#setcrankgascost">setCrankGasCost</a></h3>
+<p>Sets the crank gas cost</p>
+<pre><code class="language-solidity">function setCrankGasCost(uint256 _crankGasCost) external onlyOwner;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_crankGasCost</code></td><td><code>uint256</code></td><td>The new crank gas cost</td></tr>
+</tbody></table>
+</div>
+<h3 id="bridgeerc20"><a class="header" href="#bridgeerc20">bridgeERC20</a></h3>
+<p>Internal function to transfer ERC20 tokens for bridging</p>
+<pre><code class="language-solidity">function bridgeERC20(address tokenAddress, uint256 amountIn) internal;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tokenAddress</code></td><td><code>address</code></td><td>The address of the token to be transferred</td></tr>
+<tr><td><code>amountIn</code></td><td><code>uint256</code></td><td>The amount of tokens to be transferred</td></tr>
+</tbody></table>
+</div>
+<h3 id="bridge"><a class="header" href="#bridge">bridge</a></h3>
+<p>Initiates a bridge request</p>
+<pre><code class="language-solidity">function bridge(
+    address tokenAddress,
+    uint256 amountIn,
+    uint256 amountOut,
+    address destinationVault,
+    address destinationAddress
+) public payable nonReentrant;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tokenAddress</code></td><td><code>address</code></td><td>The address of the token to be bridged</td></tr>
+<tr><td><code>amountIn</code></td><td><code>uint256</code></td><td>The amount of tokens to be bridged</td></tr>
+<tr><td><code>amountOut</code></td><td><code>uint256</code></td><td>The amount of tokens expected at the destination</td></tr>
+<tr><td><code>destinationVault</code></td><td><code>address</code></td><td>The address of the destination vault</td></tr>
+<tr><td><code>destinationAddress</code></td><td><code>address</code></td><td>The address of the recipient at the destination</td></tr>
+</tbody></table>
+</div>
+<h3 id="_releasefunds-2"><a class="header" href="#_releasefunds-2">_releaseFunds</a></h3>
+<p>Abstract function to release funds, to be implemented by inheriting contracts</p>
+<pre><code class="language-solidity">function _releaseFunds(bytes memory data) public virtual;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>data</code></td><td><code>bytes</code></td><td>The bridge request data and signatures</td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="solidity.min.js"></script>
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
