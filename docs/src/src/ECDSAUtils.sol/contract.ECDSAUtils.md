@@ -1,5 +1,5 @@
 # ECDSAUtils
-[Git Source](https://github.com/idatsy/eigen-bridge/blob/c580a263608f0a9abe800c41a2d4bf408db0805d/src/ECDSAUtils.sol)
+[Git Source](https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/ECDSAUtils.sol)
 
 **Inherits:**
 EIP712
