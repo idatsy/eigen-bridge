@@ -29,14 +29,14 @@ This proof of concept aims to showcase the potential of EigenLayer in securing d
 
 - **Contracts**:
   - `ECDSAUtils.sol`: Provides ECDSA signature utilities.
-  - `EigenLayerBridge.sol`: Manages bridge operations and attestation validations.
+  - `BridgeServiceManager.sol`: Manages bridge operations and attestation validations.
   - `PermissionedBridge.sol`: Manages bridge operations with manually set operator weights.
   - `Events.sol`: Contains event definitions for bridge operations.
   - `Structs.sol`: Defines structs and related functions for bridge operations.
   - `Vault.sol`: Abstract contract providing common vault functionality for bridge contracts.
 
 - **Tests**:
-  - `EigenLayerBridge.t.sol`: Tests for `EigenLayerBridge.sol`.
+  - `EigenLayerBridge.t.sol`: Tests for `BridgeServiceManager.sol`.
   - `PermissionedBridge.t.sol`: Tests for `PermissionedBridge.sol`.
 
 ## Getting Started

@@ -1,5 +1,5 @@
 # BridgeServiceManager
-[Git Source](https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/EigenLayerBridge.sol)
+[Git Source](https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/BridgeServiceManager.sol)
 
 **Inherits:**
 ECDSAServiceManagerBase, [Vault](/src/Vault.sol/abstract.Vault.md)

@@ -1,8 +1,8 @@
 # Summary
 - [Home](README.md)
 # src
+  - [BridgeServiceManager](src/BridgeServiceManager.sol/contract.BridgeServiceManager.md)
   - [ECDSAUtils](src/ECDSAUtils.sol/contract.ECDSAUtils.md)
-  - [BridgeServiceManager](src/EigenLayerBridge.sol/contract.BridgeServiceManager.md)
   - [Events](src/Events.sol/contract.Events.md)
   - [PermissionedBridge](src/PermissionedBridge.sol/contract.PermissionedBridge.md)
   - [Structs](src/Structs.sol/library.Structs.md)

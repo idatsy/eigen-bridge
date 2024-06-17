@@ -1,8 +1,8 @@
 
 
 # Contents
+- [BridgeServiceManager](BridgeServiceManager.sol/contract.BridgeServiceManager.md)
 - [ECDSAUtils](ECDSAUtils.sol/contract.ECDSAUtils.md)
-- [BridgeServiceManager](EigenLayerBridge.sol/contract.BridgeServiceManager.md)
 - [Events](Events.sol/contract.Events.md)
 - [PermissionedBridge](PermissionedBridge.sol/contract.PermissionedBridge.md)
 - [Structs](Structs.sol/library.Structs.md)

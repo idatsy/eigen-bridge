@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {BridgeServiceManager} from "../src/EigenLayerBridge.sol";
+import {BridgeServiceManager} from "../src/BridgeServiceManager.sol";
 import "../src/Events.sol";
 import {Structs} from "../src/Structs.sol";
 import "openzeppelin/contracts/utils/cryptography/EIP712.sol";

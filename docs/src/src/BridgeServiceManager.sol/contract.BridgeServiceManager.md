@@ -1,12 +1,12 @@
-# PermissionedBridge
-[Git Source](https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/PermissionedBridge.sol)
+# BridgeServiceManager
+[Git Source](https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/BridgeServiceManager.sol)
 
 **Inherits:**
-[Vault](/src/Vault.sol/abstract.Vault.md)
+ECDSAServiceManagerBase, [Vault](/src/Vault.sol/abstract.Vault.md)
 
-Manages bridge operations with manually set operator weights
+Manages bridge operations and attestation validations
 
-*Extends Vault for bridging functionality*
+*Extends ECDSAServiceManagerBase and Vault for bridging and staking functionality*
 
 
 ## State Variables
@@ -32,31 +32,35 @@ mapping(uint256 => uint256) public bridgeRequestWeights;
 ```
 
 
-### operatorWeights
-Maps operator addresses to their respective weights
-
-*Temporary solution for illustrative purposes on non-mainnet chains*
-
-
-```solidity
-mapping(address => uint256) public operatorWeights;
-```
-
-
 ## Functions
 ### constructor
 
-Initializes the contract with the necessary parameters
+Initializes the contract with the necessary addresses and parameters
 
 
 ```solidity
-constructor(uint256 _crankGasCost, uint256 _AVSReward, uint256 _bridgeFee, string memory _name, string memory _version)
+constructor(
+    address _avsDirectory,
+    address _stakeRegistry,
+    address _rewardsCoordinator,
+    address _delegationManager,
+    uint256 _crankGasCost,
+    uint256 _AVSReward,
+    uint256 _bridgeFee,
+    string memory _name,
+    string memory _version
+)
+    ECDSAServiceManagerBase(_avsDirectory, _stakeRegistry, _rewardsCoordinator, _delegationManager)
     Vault(_crankGasCost, _AVSReward, _bridgeFee, _name, _version);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_avsDirectory`|`address`|The address of the AVS directory contract, managing AVS-related data for registered operators|
+|`_stakeRegistry`|`address`|The address of the stake registry contract, managing registration and stake recording|
+|`_rewardsCoordinator`|`address`|The address of the rewards coordinator contract, handling rewards distributions|
+|`_delegationManager`|`address`|The address of the delegation manager contract, managing staker delegations to operators|
 |`_crankGasCost`|`uint256`|The estimated gas cost for calling release funds, used to calculate rebate and incentivize users to call|
 |`_AVSReward`|`uint256`|The total reward for AVS attestation|
 |`_bridgeFee`|`uint256`|The total fee charged to the user for bridging|
@@ -66,12 +70,29 @@ constructor(uint256 _crankGasCost, uint256 _AVSReward, uint256 _bridgeFee, strin
 
 ### onlyOperator
 
-Ensures that only operators with non-zero weight can call the function
+Ensures that only registered operators can call the function
 
 
 ```solidity
 modifier onlyOperator();
 ```
+
+### rewardAttestation
+
+Rewards the operator for providing a valid attestation
+
+*Placeholder for actual AVS reward distribution pending Eigen M2 implementation*
+
+
+```solidity
+function rewardAttestation(address operator) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`operator`|`address`|The address of the operator to be rewarded|
+
 
 ### publishAttestation
 
@@ -88,6 +109,52 @@ function publishAttestation(bytes memory attestation, uint256 _bridgeRequestId) 
 |`attestation`|`bytes`|The signed attestation|
 |`_bridgeRequestId`|`uint256`|The ID of the bridge request|
 
+
+### slashMaliciousAttestor
+
+Slashes a malicious attestor's stake
+
+*Placeholder for slashing logic pending Eigen implementations*
+
+
+```solidity
+function slashMaliciousAttestor(address operator, uint256 penalty) internal;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`operator`|`address`|The address of the operator to be slashed|
+|`penalty`|`uint256`|The penalty amount to be slashed|
+
+
+### challengeAttestation
+
+Challenges a potentially fraudulent attestation
+
+
+```solidity
+function challengeAttestation(
+    bytes memory fraudulentSignature,
+    Structs.BridgeRequestData memory fraudulentBridgeRequest
+) public nonReentrant;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`fraudulentSignature`|`bytes`|The signature of the fraudulent attestation|
+|`fraudulentBridgeRequest`|`Structs.BridgeRequestData`|The data of the fraudulent bridge request|
+
+
+### payoutCrankGasCost
+
+Payouts the crank gas cost to the caller
+
+
+```solidity
+function payoutCrankGasCost() internal;
+```
 
 ### _releaseFunds
 
@@ -160,22 +227,6 @@ function getOperatorWeight(address operator) public view returns (uint256);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint256`|The weight of the operator|
-
-
-### setOperatorWeight
-
-Sets the weight of an operator
-
-
-```solidity
-function setOperatorWeight(address operator, uint256 weight) public onlyOwner;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`operator`|`address`|The address of the operator|
-|`weight`|`uint256`|The new weight of the operator|
 
 
 ### receive

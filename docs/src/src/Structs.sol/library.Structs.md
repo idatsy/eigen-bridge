@@ -1,5 +1,5 @@
 # Structs
-[Git Source](https://github.com/idatsy/eigen-bridge/blob/eebec4f167dbfa8749ada8d03753364230dd7d49/src/Structs.sol)
+[Git Source](https://github.com/idatsy/eigen-bridge/blob/b48404690919046d685c16cb037d35d4bd1626d5/src/Structs.sol)
 
 Contains struct definitions and related functions for bridge operations
 
