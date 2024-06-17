@@ -1,4 +1,4 @@
-# Proof of Concept Cross-Chain Bridge Secured by EigenLayer
+# Eigen-Bridge - Proof of Concept Cross-Chain Bridge Secured by EigenLayer
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-UNLICENSED-blue.svg)
@@ -58,7 +58,7 @@ This proof of concept aims to showcase the potential of EigenLayer in securing d
 
 To run the tests, use the Foundry framework. Running the tests requires an HTTP endpoint to Ethereum mainnet.
 
-> The tests use an anvil fork-test from latest Ethereum mainnet state in order to simulate a realistic environment and test against the EigenLayer contracts deployed there.
+> The tests use an anvil fork-test from latest Ethereum mainnet state in order to simulate a realistic environment.
 
 ```bash
 forge test --rpc-url <RPC_URL>
